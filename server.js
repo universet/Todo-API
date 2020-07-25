@@ -1,5 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
+var _ = require('underscore'); //refactoring todo by id
+
 var app = express();
 var PORT = process.env.PORT || 3000;
 var todos = [];
@@ -19,12 +21,13 @@ app.get('/todos', function(req, res) {
 //GET / todo/:id
 app.get('/todos/:id', function(req, res) {
 	var todoId = parseInt(req.params.id, 10); //string to int coversion with base 10
-	var matchedTodo;
-	todos.forEach(function (todo) {
-		if(todoId === todo.id) {
-			matchedTodo = todo;
-		}
-	});
+		var matchedTodo = _.findWhere(todos, {id: todoId});
+		//var matchedTodo;
+		//todos.forEach(function (todo) {
+		//	if(todoId === todo.id) {
+		//		matchedTodo = todo;
+		//	}
+		//});
 	if(matchedTodo) {
 		res.json(matchedTodo);
 	}
@@ -37,8 +40,15 @@ app.get('/todos/:id', function(req, res) {
 
 //POST /todos -> access to data which is send along with this request
 app.post('/todos', function(req, res) {
-	var body = req.body;
+	var body = _.pick(req.body, 'description', 'completed');
+	//use _.pick to only pick description and completed
+
 	//console.log('Description: ' + body.description);
+	if(!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) { //trim is a method which removes spaces
+		return res.status(404).send();
+	}
+	//set body.description to be trimmed value
+	body.description = body.description.trim();
 	body.id = todoNextId;
 	todoNextId++;
 
