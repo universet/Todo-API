@@ -41,21 +41,34 @@ app.get('/todos', function(req, res) {
 //GET / todo/:id
 app.get('/todos/:id', function(req, res) {
 	var todoId = parseInt(req.params.id, 10); //string to int coversion with base 10
-	var matchedTodo = _.findWhere(todos, {
+	db.todo.findByPk(todoId).then(function (todo) {
+		if(!!todo) { //!! means value which is not a boolean
+			res.json(todo.toJSON());
+		}
+		else {
+			res.status(404).send();
+		}
+	}, function (e) {
+		res.status(500).send(); //500 -> server error
+	});
+
+
+	/*var matchedTodo = _.findWhere(todos, {
 		id: todoId
 	});
 	//var matchedTodo;
+	*/
 	//todos.forEach(function (todo) {
 	//	if(todoId === todo.id) {
 	//		matchedTodo = todo;
 	//	}
 	//});
-	if (matchedTodo) {
+	/*if (matchedTodo) {
 		res.json(matchedTodo);
 	} else {
 		res.status(404).send();
 	}
-
+	*/
 	//res.send('Asking for todo with id: ' + req.params.id)
 });
 
