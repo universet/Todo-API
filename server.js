@@ -154,30 +154,41 @@ app.delete('/todos/:id', function(req, res) {
 //PUT /todos/:id
 app.put('/todos/:id', function(req, res) {
 	var todoId = parseInt(req.params.id, 10);
-	var matchedTodo = _.findWhere(todos, {
+	var body = _.pick(req.body, 'description', 'completed');
+	var attributes = {};
+
+	/*var matchedTodo = _.findWhere(todos, {
 		id: todoId
 	});
-	var body = _.pick(req.body, 'description', 'completed');
-	var validAttr = {};
 
 	if (!matchedTodo) {
 		return (res.status(404).send());
 	}
-
-	if (body.hasOwnProperty('completed') && _.isBoolean(body.completed)) {
-		validAttr.completed = body.completed;
-	} else if (body.hasOwnProperty('completed')) {
-		return (res.status(404).send());
+	*/
+	if (body.hasOwnProperty('completed')) {
+		attributes.completed = body.completed;
 	}
 
-	if (body.hasOwnProperty('description') && _.isString(body.description) && body.description.trim().length > 0) { //trim is a method which removes spaces
-		validAttr.description = body.description;
-	} else if (body.hasOwnProperty('description')) {
-		return (res.status(404).send());
+	if (body.hasOwnProperty('description')) { //trim is a method which removes spaces
+		attributes.description = body.description;
 	}
 	//method extend -> let us copy propoerties from one object to another
-	_.extend(matchedTodo, validAttr);
-	res.json(matchedTodo);
+	/*_.extend(matchedTodo, validAttr);
+	res.json(matchedTodo);*/
+	db.todo.findByPk(todoId).then(function (todo) {
+		if(todo) {
+			todo.update(attributes).then(function (todo) {
+				res.json(todo.toJSON());
+			}, function (e) {
+				res.status(404).json(e);
+			});
+		}
+		else {
+			res.status(404).send();
+		}
+	}, function () {
+		res.status(500).send();
+	});
 });
 
 db.sequelize.sync().then(function () {
