@@ -193,13 +193,13 @@ app.put('/todos/:id', function(req, res) {
 
 app.post('/users', function (req, res) {
 	var body = _.pick(req.body, 'email', 'password');
-	
+	//const foundUser = await User.prototype.toPublicJSON();
 	db.user.create(body).then(function (user) {
-		res.json(user.toJSON());
+		res.json(User.prototype.toPublicJSON());
 	}, function (e) {
 		res.status(400).json(e);
 	});
-})
+});
 
 db.sequelize.sync().then(function () {
 	app.listen(PORT, function() {
