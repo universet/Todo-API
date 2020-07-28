@@ -22,4 +22,7 @@ db.user = require(path.join(__dirname, '/models/user.js'))(sequelize, Sequelize.
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
+db.todo.belongsTo(db.user); // for association
+db.user.hasMany(db.todo);
+
 module.exports = db;
