@@ -4,6 +4,7 @@ var _ = require('underscore'); //refactoring todo by id
 var db = require('./db.js');
 var User = require('./models/user.js');
 var bcrypt = require('bcrypt');
+var middleware = require('./middleware.js')(db);
 
 var app = express();
 var PORT = process.env.PORT || 3000;
@@ -17,7 +18,7 @@ app.get('/', function(req, res) {
 });
 
 //GET /todos
-app.get('/todos', function(req, res) {
+app.get('/todos', middleware.requireAuthentication, function(req, res) {
 	var query = req.query;
 	var where = {};
 
@@ -61,7 +62,7 @@ app.get('/todos', function(req, res) {
 });
 
 //GET / todo/:id
-app.get('/todos/:id', function(req, res) {
+app.get('/todos/:id', middleware.requireAuthentication, function(req, res) {
 	var todoId = parseInt(req.params.id, 10); //string to int coversion with base 10
 	db.todo.findByPk(todoId).then(function (todo) {
 		if(!!todo) { //!! means value which is not a boolean
@@ -95,7 +96,7 @@ app.get('/todos/:id', function(req, res) {
 });
 
 //POST /todos -> access to data which is send along with this request
-app.post('/todos', function(req, res) {
+app.post('/todos', middleware.requireAuthentication, function(req, res) {
 	var body = _.pick(req.body, 'description', 'completed');
 	
 	db.todo.create(body).then(function (todo) {
@@ -121,7 +122,7 @@ app.post('/todos', function(req, res) {
 });
 
 //DELETE -> http method, url -> /todos/id
-app.delete('/todos/:id', function(req, res) {
+app.delete('/todos/:id', middleware.requireAuthentication, function(req, res) {
 	var todoId = parseInt(req.params.id, 10);
 
 	db.todo.destroy({
@@ -154,7 +155,7 @@ app.delete('/todos/:id', function(req, res) {
 });
 
 //PUT /todos/:id
-app.put('/todos/:id', function(req, res) {
+app.put('/todos/:id', middleware.requireAuthentication, function(req, res) {
 	var todoId = parseInt(req.params.id, 10);
 	var body = _.pick(req.body, 'description', 'completed');
 	var attributes = {};
