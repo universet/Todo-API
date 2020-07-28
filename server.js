@@ -2,6 +2,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var _ = require('underscore'); //refactoring todo by id
 var db = require('./db.js');
+var User = require('./models/user.js');
 
 var app = express();
 var PORT = process.env.PORT || 3000;
@@ -195,13 +196,15 @@ app.post('/users', function (req, res) {
 	var body = _.pick(req.body, 'email', 'password');
 	//const foundUser = await User.prototype.toPublicJSON();
 	db.user.create(body).then(function (user) {
-		res.json(User.prototype.toPublicJSON());
+		res.json(User.prototype.toPublicJSON);
 	}, function (e) {
 		res.status(400).json(e);
 	});
 });
 
-db.sequelize.sync().then(function () {
+
+
+db.sequelize.sync().then(function () {  //{force: true}
 	app.listen(PORT, function() {
 		console.log('Express listening on port: ' + PORT + '!');
 	});	
