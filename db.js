@@ -19,6 +19,7 @@ var db = {};
 
 db.todo = require(path.join(__dirname, '/models/todo.js'))(sequelize, Sequelize.DataTypes);
 db.user = require(path.join(__dirname, '/models/user.js'))(sequelize, Sequelize.DataTypes);
+db.token = require(path.join(__dirname, '/models/token.js'))(sequelize, Sequelize.DataTypes);
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
