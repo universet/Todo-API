@@ -20,7 +20,9 @@ app.get('/', function(req, res) {
 //GET /todos
 app.get('/todos', middleware.requireAuthentication, function(req, res) {
 	var query = req.query;
-	var where = {};
+	var where = {
+		userId: req.user.get('id')
+	};
 
 	if(query.hasOwnProperty('completed') && query.completed === 'true') {
 		where.completed = true;
@@ -64,7 +66,12 @@ app.get('/todos', middleware.requireAuthentication, function(req, res) {
 //GET / todo/:id
 app.get('/todos/:id', middleware.requireAuthentication, function(req, res) {
 	var todoId = parseInt(req.params.id, 10); //string to int coversion with base 10
-	db.todo.findByPk(todoId).then(function (todo) {
+	db.todo.findOne({
+		where: {
+			id: todoId,
+			userId: req.user.get('id')
+		}
+	}).then(function (todo) {
 		if(!!todo) { //!! means value which is not a boolean
 			res.json(todo.toJSON());
 		}
@@ -131,7 +138,8 @@ app.delete('/todos/:id', middleware.requireAuthentication, function(req, res) {
 
 	db.todo.destroy({
 		where: {
-			id: todoId
+			id: todoId,
+			userId: req.user.get('id')
 		} 
 	}).then(function (rowsDeleted) {
 		if(rowsDeleted === 0) {
@@ -182,7 +190,12 @@ app.put('/todos/:id', middleware.requireAuthentication, function(req, res) {
 	//method extend -> let us copy propoerties from one object to another
 	/*_.extend(matchedTodo, validAttr);
 	res.json(matchedTodo);*/
-	db.todo.findByPk(todoId).then(function (todo) {
+	db.todo.findOne({
+		where: {
+			id: todoId,
+			userId: req.user.get('id')
+		}
+	}).then(function (todo) {
 		if(todo) {
 			todo.update(attributes).then(function (todo) {
 				res.json(todo.toJSON());
